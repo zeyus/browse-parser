@@ -17,7 +17,7 @@ for file in $CONTENT/*.txt; do
     echo "Cleaning $file"
     vim -es \
         -c 'silent %s/[^[:print:]]//ge' \
-        -c 'silent g!/\v^(Residents|\<h2>|\<h3>|Courses|Event|"|.?International|Email us|Make an online enquiry|Ring us|\+61 3|Create a course e-brochure|http:\/\/www\.youtube\.com|\s*$)/>>' \
+        -c 'silent g!/\v^(Residents|\<h2>|\<h3>|Courses|Event|"|.?International|Email us|Make an online enquiry|Ring us|\+61 3|Create a course e-brochure|http:\/\/www\.youtube\.com|Tuition fees|When I started at VU English|\s*$)/>>' \
         -c 'silent %s/^ International/International/e' \
         -c wq "$file";
 done

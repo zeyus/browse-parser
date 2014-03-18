@@ -15,8 +15,9 @@ topic_residents=
     careers
     colleges
     courses
-    studyareas
-    promos?
+    //(specialisations / studyareas)
+    //promos
+swallow
 
 topic_international=
     heading_international
@@ -26,9 +27,9 @@ topic_international=
     colleges
     pathways?
     courses
-    specialisations
+    (specialisations / studyareas)
     contacts
-    promos?
+    promos
 
 heading_residents= "Residents " not_nl+ nl {
     return {name: 'audience', value: 'Residents'}
@@ -66,7 +67,7 @@ pathways= nl* '<h2>Pathways</h2>' nl pathways:indented_lines {
     return {name: 'pathways', value: pathways}
 }
 
-courses= nl* 'Courses' nl ws* '<Insert courses ' [t]? 'able as per wireframe>' nl+ courses:course_type+ {
+courses= nl* 'Courses' ws* nl ws* '<Insert courses ' [t]? 'able as per wireframe>' wsnl+ courses:course_type+ {
     return {name: 'course_groups', value: courses}
 }
 
@@ -76,7 +77,7 @@ course_type= nl* ws* type:course_type_name ' (' count:[0-9]+ ' course' [s]? ')' 
 
 course_type_name=
     'Short courses' /
-    'TAFE certificates and diplomas' /
+    'TAFE certificates and ' [Dd] 'iplomas' /
     'Bachelor degrees (undergraduate)' /
     'Postgraduate'
 
@@ -94,28 +95,74 @@ course_data= ws* key:[A-Za-z]+ ': ' value:not_nl+ nl+ {
     return ret
 }
 
-
 course_teaser= ws* teaser:not_nl+ wsnl+ {
     return teaser.join('')
 }
 
 course_award=
-    'BAS Agent' /
-    'Professional Course' /
-    'Certificate' /
-    'Diploma' /
-    'Associate Degree' /
     'Advanced Diploma' /
+    'Advanced Skills' /
+    'Alcohol and Other Drugs' /
+    'Associate Degree' /
     'Bachelor o' /
+    'BAS Agent' /
+    'Basic' /
+    'Beginner Skills' /
+    'Bridal' /
+    'Build' /
+    'CCNA' /
+    'Certificate' /
+    'Cisco' /
+    'Coffee' /
+    'Course in' /
+    'CPR' /
+    'Crystal' /
+    'Diploma' /
+    'DIY' /
+    'Doctor' /
+    'Dual Diagnosis' /
+    'Engineering' /
+    'Food' /
+    'Foundation' /
+    'Furniture' /
     'Graduate' /
-    'Vocational' /
+    'Home' /
+    'Hot Stone' /
+    'Immigration' /
+    'Intermediate Skills' /
+    'Introduction' /
+    'ITIL' /
+    'Licensed' /
+    'Linux' /
+    'Make-Up' /
     'Master' /
-    'Doctor'
+    'MCITP' /
+    'Mental Health' /
+    'National' /
+    'Open Cable' /
+    'Perform' /
+    'Photographic' /
+    'Portable' /
+    'Prepare' /
+    'Professional Course' /
+    'Recognise' /
+    'Registered' /
+    'Responsible' /
+    'Restricted' /
+    'Save Money' /
+    'Sculptural' /
+    'Serve' /
+    'Solar' /
+    'Test' /
+    'Vocational' /
+    'Welding' /
+    'Workplace'
 
-specialisations= nl* '<h2>Specialisations in ' [^<]+ '</h2>' studyareas:studyarea_summary* {
+specialisations= nl* '<h2>Specialisations in ' not_nl+ studyareas:studyarea_summary* {
     return {name: 'studyareas', value: studyareas}
 }
-studyareas= nl* '<h2>Study areas</h2>' studyareas:studyarea_summary* {
+
+studyareas= nl* '<h2>Study areas' not_nl+ studyareas:studyarea_summary* {
     return {name: 'studyareas', value: studyareas}
 }
 
@@ -142,16 +189,24 @@ online_contact= nl* first:'Make an online enquiry' rest:not_nl+ nl* {
 }
 
 
-promos= promos:promo+ {
+promos= nl* promos:promo+ {
     return {name:'promos', value: promos}
 }
 
-promo= nl* promo:(event / testimonial / campaign / video / ebrochure) {
+promo= promo:(event / testimonial / campaign / video / ebrochure / tuition_promo / vu_english_promo) nl* {
     return promo
 }
 
 event= 'Event' nl+ event_lines:indented_lines {
     return {type: 'event', value: event_lines}
+}
+
+tuition_promo= first:'Tuition fees ' rest:not_nl+ nl+ lines:indented_lines {
+    return {type: 'tuition', value: [first + rest.join('')].concat(lines).join('\r\n')}
+}
+
+vu_english_promo= first:'When I started at VU English' rest:not_nl+ nl+ {
+    return {type: 'tuition', value: first + rest.join('')}
 }
 
 ebrochure= first:'Create a course e-brochure' nl+ rest:indented_lines {
@@ -162,7 +217,7 @@ testimonial= '"' testimonial_lines:testimonial_lines {
     return {type: 'testimonial', value: testimonial_lines}
 }
 
-testimonial_lines= first:line rest:indented_lines {
+testimonial_lines= first:line rest:indented_lines? {
     return [first].concat(rest).join('\r\n')
 }
 
