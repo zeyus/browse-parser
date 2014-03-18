@@ -2,19 +2,24 @@
 set -e
 
 SRC="/Volumes/Shared/Web Futures Group/Projects/2013/VU website -- Browse By Course design (Q4 2013)/Documents/02  Content creation/Browse by topic/"
-DST=./content
+CONTENT=./content
+BUILD=./build
 
 # get files
-rm -rf $DST
-cp -r "$SRC" $DST
+rm -rf $CONTENT $BUILD
+cp -r "$SRC" $CONTENT
+mkdir -p $BUILD
 
 # convert to text
-find $DST -name *.docx -exec textutil -convert txt '{}' \;
+find $CONTENT -name *.docx -exec textutil -convert txt '{}' \;
 
 # indent
-for file in $DST/*.txt; do
+for file in $CONTENT/*.txt; do
+    echo "Cleaning $file"
     vim -es \
         -c '%s/[^[:print:]]//g' -c 'g!/\v^(Residents|\<h2>|\<h3>|Courses|Event|"|.?International|Email us|Make an online enquiry|Ring us|\+61 3|Create a course e-brochure|http:\/\/www\.youtube\.com|\s*$)/>>' \
         -c '%s/^ International/International' \
         -c wq "$file";
+    echo "Parsing $file"
+    node parse.js "$file" > "$BUILD/$(basename $file .txt).json"
 done
