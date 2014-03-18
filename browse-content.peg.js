@@ -2,10 +2,11 @@ start=
     topic / studyarea
 
 topic=
-    topic_residents
-    topic_international?
+    topic_residents topic_international?
 
-studyarea= .*
+studyarea= .* {
+    return 'studyarea?'
+}
 
 topic_residents=
     heading_residents
@@ -41,7 +42,7 @@ tags= tags:(metatag* titletag* metatag*) {
     return {name: 'tags', value: tags}
 }
 
-metatag= ws* l:"<meta" m:[^>]+ r:">" nl? {
+metatag= ws* l:"<meta" m:[^>]+ r:">" not_nl* nl? {
     return {tag: l + m.join('') + r }
 }
 
@@ -49,8 +50,8 @@ titletag= l:"<title>" m:[^<]+ r:"</title>" nl? {
     return {tag: l + m.join('') + r }
 }
 
-intro= ws* intro:[^<]* {
-    return {name: 'intro', value: intro.join('')}
+intro= nl* intro:indented_lines  {
+    return {name: 'intro', value: intro}
 }
 
 careers= nl* '<h2>Careers' not_nl+ nl careers:indented_lines {
@@ -79,7 +80,7 @@ course_type_name=
     'Bachelor degrees (undergraduate)' /
     'Postgraduate'
 
-course= nl* title:course_title data:course_data+ teaser:course_teaser {
+course= nl* title:course_title data:course_data* teaser:course_teaser {
     return {title: title, teaser: teaser, data: data}
 }
 
@@ -99,11 +100,13 @@ course_teaser= ws* teaser:not_nl+ wsnl+ {
 }
 
 course_award=
+    'BAS Agent' /
     'Professional Course' /
     'Certificate' /
     'Diploma' /
+    'Associate Degree' /
     'Advanced Diploma' /
-    'Bachelor' /
+    'Bachelor o' /
     'Graduate' /
     'Vocational' /
     'Master' /

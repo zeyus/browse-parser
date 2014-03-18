@@ -13,13 +13,16 @@ mkdir -p $BUILD
 # convert to text
 find $CONTENT -name *.docx -exec textutil -convert txt '{}' \;
 
-# indent
 for file in $CONTENT/*.txt; do
     echo "Cleaning $file"
     vim -es \
-        -c '%s/[^[:print:]]//g' -c 'g!/\v^(Residents|\<h2>|\<h3>|Courses|Event|"|.?International|Email us|Make an online enquiry|Ring us|\+61 3|Create a course e-brochure|http:\/\/www\.youtube\.com|\s*$)/>>' \
-        -c '%s/^ International/International' \
+        -c 'silent %s/[^[:print:]]//ge' \
+        -c 'silent g!/\v^(Residents|\<h2>|\<h3>|Courses|Event|"|.?International|Email us|Make an online enquiry|Ring us|\+61 3|Create a course e-brochure|http:\/\/www\.youtube\.com|\s*$)/>>' \
+        -c 'silent %s/^ International/International/e' \
         -c wq "$file";
+done
+
+for file in $CONTENT/*.txt; do
     echo "Parsing $file"
     node parse.js "$file" > "$BUILD/$(basename $file .txt).json"
 done
