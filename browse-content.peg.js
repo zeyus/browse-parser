@@ -1,44 +1,23 @@
 start=
-    topic / studyarea
+    topic+
 
 topic=
-    topic_residents topic_international?
-
-studyarea= .* {
-    return 'studyarea?'
-}
-
-topic_residents=
-    heading_residents
-    tags
-    intro
-    careers
-    colleges
-    courses
-    (specialisations / studyareas)
-    promos
-
-topic_international=
-    heading_international
+    heading
     tags
     intro
     careers
     colleges
     pathways?
     courses
-    (specialisations / studyareas)
-    contacts
+    studyareas
+    contacts?
     promos
 
-heading_residents= "Residents " not_nl+ nl {
-    return {name: 'audience', value: 'Residents'}
+heading= audience:("Residents" / "International") not_nl+ nl {
+    return {name: 'audience', value: audience}
 }
 
-heading_international= "International " not_nl+ nl {
-    return {name: 'audience', value: 'International'}
-}
-
-tags= tags:(metatag* titletag* metatag*) {
+tags= tags:(metatag / titletag)* {
     return {name: 'tags', value: tags}
 }
 
@@ -58,7 +37,7 @@ careers= nl* '<h2>Careers' not_nl+ nl careers:indented_lines {
     return {name: 'careers', value: careers}
 }
 
-colleges= nl* '<h2>Colleges</h2>' nl colleges:indented_lines {
+colleges= nl* ('<h2>'? 'Colleges' '</h2>'?) nl colleges:indented_lines {
     return {name: 'colleges', value: colleges}
 }
 
@@ -80,7 +59,7 @@ course_type_name=
     'Bachelor degrees (undergraduate)' /
     'Postgraduate'
 
-course= nl* title:course_title data:course_data* teaser:course_teaser {
+course= nl* title:course_title data:course_data* teaser:course_teaser* {
     return {title: title, teaser: teaser, data: data}
 }
 
@@ -94,9 +73,7 @@ course_data= ws* key:[A-Za-z]+ ': ' value:not_nl+ nl+ {
     return ret
 }
 
-course_teaser= ws* teaser:not_nl+ wsnl+ {
-    return teaser.join('')
-}
+course_teaser= indented_lines
 
 course_award=
     'Advanced Diploma' /
@@ -157,15 +134,13 @@ course_award=
     'Welding' /
     'Workplace'
 
-specialisations= nl* '<h2>Specialisations in ' not_nl+ studyareas:studyarea_summary* {
+studyareas= studyarea_heading studyareas:studyarea_summary* {
     return {name: 'studyareas', value: studyareas}
 }
 
-studyareas= nl* '<h2>Study areas' not_nl+ studyareas:studyarea_summary* {
-    return {name: 'studyareas', value: studyareas}
-}
+studyarea_heading= nl* '<h2>'? ('Study areas' / 'Specialisations in' / 'Related study areas') not_nl+
 
-studyarea_summary= nl* title:indented_line teaser:indented_lines {
+studyarea_summary= nl* title:indented_line nl? teaser:indented_lines {
     return {title: title, teaser: teaser}
 }
 
@@ -192,7 +167,7 @@ promos= nl* promos:promo+ {
     return {name:'promos', value: promos}
 }
 
-promo= promo:(event / testimonial / campaign / video / ebrochure / tuition_promo / vu_english_promo) nl* {
+promo= promo:(event / testimonial / campaign / video / ebrochure / tuition_promo / vu_english_promo / exchange_promo / apprenticeship_promo / vgsb_promo) nl* {
     return promo
 }
 
@@ -200,12 +175,24 @@ event= 'Event' nl+ event_lines:indented_lines {
     return {type: 'event', value: event_lines}
 }
 
-tuition_promo= first:'Tuition fees ' rest:not_nl+ nl+ lines:indented_lines {
+exchange_promo= first:'You have the opportunity ' rest:not_nl+ nl+ lines:indented_lines* {
+    return {type: 'exchange', value: [first + rest.join('')].concat(lines).join('\r\n')}
+}
+
+apprenticeship_promo= first:'VU is focused on the delivery' rest:not_nl+ nl+ lines:indented_lines* {
+    return {type: 'apprenticeship', value: [first + rest.join('')].concat(lines).join('\r\n')}
+}
+
+tuition_promo= first:'Tuition fees ' rest:not_nl+ nl+ lines:indented_lines* {
     return {type: 'tuition', value: [first + rest.join('')].concat(lines).join('\r\n')}
 }
 
-vu_english_promo= first:'When I started at VU English' rest:not_nl+ nl+ lines:indented_lines {
+vu_english_promo= first:'When I started at VU English' rest:not_nl+ nl+ lines:indented_lines* {
     return {type: 'vu_english', value: [first + rest.join('')].concat(lines).join('\r\n')}
+}
+
+vgsb_promo= first:'The Victoria Graduate School' rest:not_nl+ nl+ lines:indented_lines* {
+    return {type: 'vgsb', value: [first + rest.join('')].concat(lines).join('\r\n')}
 }
 
 ebrochure= first:'Create a course e-brochure' nl+ rest:indented_lines {
