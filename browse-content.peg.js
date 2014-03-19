@@ -95,8 +95,10 @@ course_award=
     'Certificate' /
     'Cisco' /
     'Coffee' /
+    'Composting' /
     'Course in' /
     'CPR' /
+    'Create' /
     'Crystal' /
     'Diploma' /
     'DIY' /
@@ -107,6 +109,7 @@ course_award=
     'Foundation' /
     'Furniture' /
     'Graduate' /
+    'Growing' /
     'Home' /
     'Hot Stone' /
     'Immigration' /
@@ -126,6 +129,8 @@ course_award=
     'Portable' /
     'Prepare' /
     'Professional Course' /
+    'Propagating' /
+    'Pruning' /
     'Recognise' /
     'Registered' /
     'Responsible' /
@@ -176,7 +181,7 @@ promos= nl* promos:promo+ {
     return {name:'promos', value: promos}
 }
 
-promo= promo:(event / testimonial / campaign / video / ebrochure / tuition_promo / vu_english_promo / exchange_promo / apprenticeship_promo / vgsb_promo / postgrad_promo) nl* {
+promo= promo:(event / testimonial / campaign / video / ebrochure / tuition_promo / vu_english_promo / exchange_promo / apprenticeship_promo / vgsb_promo / postgrad_promo / hospitality_promo / opportunity_promo / immigration_promo / aged_care_promo / beauty_promo / cfp_promo / short_course_promo / it_promo) nl* {
     return promo
 }
 
@@ -206,6 +211,38 @@ vgsb_promo= first:'The Victoria Graduate School' rest:not_nl+ nl+ lines:indented
 
 postgrad_promo= first:'Victoria University (VU) postgraduate programs' rest:not_nl+ nl+ lines:indented_lines* {
     return {type: 'postgrad', value: [first + rest.join('')].concat(lines).join('\r\n')}
+}
+
+hospitality_promo= first:'VU is a recognised leader' rest:not_nl+ nl+ lines:indented_lines* {
+    return {type: 'hospitality', value: [first + rest.join('')].concat(lines).join('\r\n')}
+}
+
+opportunity_promo= first:'Find out about how' rest:not_nl+ nl+ lines:indented_lines* {
+    return {type: 'opportunity', value: [first + rest.join('')].concat(lines).join('\r\n')}
+}
+
+immigration_promo= first:'VU offers courses' rest:not_nl+ nl+ lines:indented_lines* {
+    return {type: 'immigration_law', value: [first + rest.join('')].concat(lines).join('\r\n')}
+}
+
+aged_care_promo= first:'Demand for aged care' rest:not_nl+ nl+ lines:indented_lines* {
+    return {type: 'immigration_law', value: [first + rest.join('')].concat(lines).join('\r\n')}
+}
+
+beauty_promo= first:'Our students provide treatments' rest:not_nl+ nl+ lines:indented_lines* {
+    return {type: 'immigration_law', value: [first + rest.join('')].concat(lines).join('\r\n')}
+}
+
+cfp_promo= first:'Some students are eligible' rest:not_nl+ nl+ lines:indented_lines* {
+    return {type: 'cfp', value: [first + rest.join('')].concat(lines).join('\r\n')}
+}
+
+short_course_promo= first:'We offer a wide' rest:not_nl+ nl+ lines:indented_lines* {
+    return {type: 'short_course', value: [first + rest.join('')].concat(lines).join('\r\n')}
+}
+
+it_promo= first:'Gain skills and knowledge' rest:not_nl+ nl+ lines:indented_lines* {
+    return {type: 'it', value: [first + rest.join('')].concat(lines).join('\r\n')}
 }
 
 ebrochure= first:'Create a course e-brochure' nl+ rest:indented_lines {
