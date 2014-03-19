@@ -15,9 +15,8 @@ topic_residents=
     careers
     colleges
     courses
-    //(specialisations / studyareas)
-    //promos
-swallow
+    (specialisations / studyareas)
+    promos
 
 topic_international=
     heading_international
@@ -205,8 +204,8 @@ tuition_promo= first:'Tuition fees ' rest:not_nl+ nl+ lines:indented_lines {
     return {type: 'tuition', value: [first + rest.join('')].concat(lines).join('\r\n')}
 }
 
-vu_english_promo= first:'When I started at VU English' rest:not_nl+ nl+ {
-    return {type: 'tuition', value: first + rest.join('')}
+vu_english_promo= first:'When I started at VU English' rest:not_nl+ nl+ lines:indented_lines {
+    return {type: 'vu_english', value: [first + rest.join('')].concat(lines).join('\r\n')}
 }
 
 ebrochure= first:'Create a course e-brochure' nl+ rest:indented_lines {
@@ -257,4 +256,3 @@ not_nl = [^\r\n]
 nl = [\r\n]
 ws = [ \t]
 wsnl = ws / nl
-swallow= .* { return 'end' }
