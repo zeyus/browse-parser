@@ -1,5 +1,5 @@
 start=
-    topic+
+    (topic / nothing)+
 
 topic=
     heading
@@ -12,6 +12,11 @@ topic=
     studyareas
     contacts?
     promos
+
+nothing=
+    heading:heading ws* 'No' .* {
+        return heading
+    }
 
 heading= audience:("Residents" / "International") not_nl+ nl {
     return {name: 'audience', value: audience}
@@ -37,7 +42,7 @@ careers= nl* '<h2>Careers' not_nl+ nl careers:indented_lines {
     return {name: 'careers', value: careers}
 }
 
-colleges= nl* ('<h2>'? 'Colleges' '</h2>'?) nl colleges:indented_lines {
+colleges= nl* ('<h2>'? ' '? 'Colleges' '</h2>'?) nl colleges:indented_lines {
     return {name: 'colleges', value: colleges}
 }
 
@@ -140,9 +145,14 @@ studyareas= studyarea_heading studyareas:studyarea_summary* {
 
 studyarea_heading= nl* '<h2>'? ('Study areas' / 'Specialisations in' / 'Related study areas') not_nl+
 
-studyarea_summary= nl* title:indented_line nl? teaser:indented_lines {
-    return {title: title, teaser: teaser}
+studyarea_summary= nl* title:indented_line nl? image:studyarea_image? teaser:indented_lines_with_dot {
+    return {title: title, image: image, teaser: teaser}
 }
+
+studyarea_image= ws* protocol:'http://' url:not_nl+ nl+ {
+    return protocol + url.join('')
+}
+
 
 contacts= contacts:contact* {
     return {name: 'contacts', value: contacts}
@@ -162,12 +172,11 @@ online_contact= nl* first:'Make an online enquiry' rest:not_nl+ nl* {
     return [first].concat(rest).join('')
 }
 
-
 promos= nl* promos:promo+ {
     return {name:'promos', value: promos}
 }
 
-promo= promo:(event / testimonial / campaign / video / ebrochure / tuition_promo / vu_english_promo / exchange_promo / apprenticeship_promo / vgsb_promo) nl* {
+promo= promo:(event / testimonial / campaign / video / ebrochure / tuition_promo / vu_english_promo / exchange_promo / apprenticeship_promo / vgsb_promo / postgrad_promo) nl* {
     return promo
 }
 
@@ -195,6 +204,10 @@ vgsb_promo= first:'The Victoria Graduate School' rest:not_nl+ nl+ lines:indented
     return {type: 'vgsb', value: [first + rest.join('')].concat(lines).join('\r\n')}
 }
 
+postgrad_promo= first:'Victoria University (VU) postgraduate programs' rest:not_nl+ nl+ lines:indented_lines* {
+    return {type: 'postgrad', value: [first + rest.join('')].concat(lines).join('\r\n')}
+}
+
 ebrochure= first:'Create a course e-brochure' nl+ rest:indented_lines {
     return {type: 'ebrochure', value: [first].concat(rest).join('\r\n')}
 }
@@ -211,7 +224,7 @@ campaign= title:campaign_title content:indented_or_empty_lines {
     return {type: 'campaign', value: {title: title, content: content}}
 }
 
-campaign_title= '<h3>' title:[^<]+ '</h3>' nl+ {
+campaign_title= '<h3>' title:[^<]+ not_nl+ nl+ {
     return title.join('')
 }
 
@@ -219,7 +232,7 @@ video= link:video_link text:indented_lines {
     return {type: 'video', value: {link: link, text: text}}
 }
 
-video_link= url:'http://www.youtube.com/watch?v=' code:not_nl+ nl+ {
+video_link= url:'http' 's'? '://www.youtube.com/watch?v=' code:not_nl+ nl+ {
     return url + code.join('')
 }
 
@@ -227,11 +240,27 @@ line= c:not_nl* nl {
     return c.join('')
 }
 
+line_with_dot= sentences:sentence+ not_nl* nl {
+    return sentences.join(' ')
+}
+
+sentence= c:[^\r\n\.]+ '.' {
+    return c.join('') + '.'
+}
+
 indented_line= ws line:line {
     return line
 }
 
+indented_line_with_dot= ws line:line_with_dot {
+    return line
+}
+
 indented_lines= lines:indented_line+ {
+    return lines.join('\r\n')
+}
+
+indented_lines_with_dot= lines:indented_line_with_dot+ {
     return lines.join('\r\n')
 }
 
