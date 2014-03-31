@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-SRC="/Volumes/Shared/Web Futures Group/Projects/2013/VU website -- Browse By Course design (Q4 2013)/Documents/02  Content creation/Browse by topic/"
+SRC="/Volumes/Shared/Web Futures Group/Projects/2013/VU website -- Browse By Course design (Q4 2013)/Documents/02  Content creation/Course Content/"
 CONTENT=./content
 BUILD=./build
 
