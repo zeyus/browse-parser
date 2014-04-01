@@ -290,8 +290,8 @@ video= link:video_link text:indented_lines {
     return {type: 'video', value: {link: link, text: text}}
 }
 
-video_link= url:'http' 's'? '://www.youtube.com/watch?v=' code:not_nl+ nl+ {
-    return url + code.join('')
+video_link= url:('http' 's'? '://www.youtube.com/watch?v=') code:not_nl+ nl+ {
+    return url.join('') + code.join('')
 }
 
 line= c:not_nl* nl {
