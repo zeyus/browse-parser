@@ -15,6 +15,8 @@ function _preprocess {
     vim -es \
         -c 'silent %s/[^[:print:]]//ge' \
         -c 'silent %s/\v^\s+\</</ge' \
+        -c 'silent %s/\v(.*\/courses\/.*)/\r\1/ge' \
+        -c 'silent %s/\v(.*\([0-9]+ courses?\).*)/\r\1/ge' \
         -c 'silent g!/\v^(Residents|\<h2>|\<h3>|Courses|Colleges|Event|"|.?International|Email us|Make an online enquiry|Ring us|\+61 3|Create a course e-brochure|https?:\/\/www\.youtube\.com|Tuition fees|When I started at VU English|You have the opportunity|VU is focused on the delivery|The Victoria Graduate School|Victoria University \(VU\) postgraduate programs|Find out about how|VU offers courses|Demand for aged care|Our students provide treatments|Some students are eligible|We offer a wide|Gain skills and knowledge|\s*$)/>>' \
         -c 'silent g/Academy Sofitel and Le Cordon Bleu/<<' \
         -c 'silent %s/^ International/International/e' \

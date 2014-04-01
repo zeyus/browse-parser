@@ -2,28 +2,41 @@ start=
     (topic / nothing)+
 
 topic=
-    heading
-    tags
-    intro
-    careers
-    colleges
-    pathways?
-    courses
-    studyareas
-    contacts?
-    promos
+    audience:heading
+    tags:tags
+    intro:intro
+    careers:careers
+    colleges:colleges
+    pathways:pathways?
+    course_groups:course_groups
+    studyareas:studyareas
+    contacts:contacts?
+    promos:promos {
+        return {
+            'audience': audience,
+            'tags': tags,
+            'intro': intro,
+            'careers': careers,
+            'colleges': colleges,
+            'pathways': pathways,
+            'course_groups': course_groups,
+            'studyareas': studyareas,
+            'contacts': contacts,
+            'promos': promos
+        }
+    }
 
 nothing=
-    heading:heading ws* 'No' .* {
-        return heading
+    audience:heading ws* 'No' .* {
+        return {'audience': audience}
     }
 
 heading= audience:("Residents" / "International") not_nl+ nl {
-    return {name: 'audience', value: audience}
+    return audience
 }
 
 tags= tags:(metatag / titletag)* {
-    return {name: 'tags', value: tags}
+    return tags
 }
 
 metatag= ws* l:"<meta" m:[^>]+ r:">" not_nl* nl? {
@@ -35,27 +48,31 @@ titletag= l:"<title>" m:[^<]+ r:"</title>" nl? {
 }
 
 intro= nl* intro:indented_lines  {
-    return {name: 'intro', value: intro}
+    return intro
 }
 
 careers= nl* '<h2>Careers' not_nl+ nl careers:indented_lines {
-    return {name: 'careers', value: careers}
+    return careers
 }
 
 colleges= nl* ('<h2>'? ' '? 'Colleges' '</h2>'?) nl colleges:indented_lines {
-    return {name: 'colleges', value: colleges}
+    return colleges
 }
 
 pathways= nl* '<h2>Pathways</h2>' nl pathways:indented_lines {
-    return {name: 'pathways', value: pathways}
+    return pathways
 }
 
-courses= nl* 'Courses' ws* nl ws* '<Insert courses ' [t]? 'able as per wireframe>' wsnl+ courses:course_type+ {
-    return {name: 'course_groups', value: courses}
+course_groups= nl* 'Courses' ws* nl ws* '<Insert courses ' [t]? 'able as per wireframe>' wsnl+ courses:course_type+ {
+    return courses
 }
 
 course_type= nl* ws* type:course_type_name ' (' count:[0-9]+ ' course' [s]? ')' courses:course* {
-    return {type: type, count: count.join(''), courses: courses}
+    count = parseInt(count.join(''), 10);
+    if(count != courses.length) {
+        throw new Error('Course count mismatch in ' + type + ': ' + courses.map(JSON.stringify));
+    }
+    return {type: type, courses: courses}
 }
 
 course_type_name=
@@ -145,7 +162,7 @@ course_award=
     'Workplace'
 
 studyareas= studyarea_heading studyareas:studyarea_summary* {
-    return {name: 'studyareas', value: studyareas}
+    return studyareas
 }
 
 studyarea_heading= nl* '<h2>'? ('Study areas' / 'Specialisations in' / 'Related study areas') not_nl+
@@ -160,7 +177,7 @@ studyarea_image= ws* protocol:'http://' url:not_nl+ nl+ {
 
 
 contacts= contacts:contact* {
-    return {name: 'contacts', value: contacts}
+    return contacts
 }
 
 contact= (phone_contact / email_contact / online_contact)
@@ -178,7 +195,7 @@ online_contact= nl* first:'Make an online enquiry' rest:not_nl+ nl* {
 }
 
 promos= nl* promos:promo+ {
-    return {name:'promos', value: promos}
+    return promos
 }
 
 promo= promo:(event / testimonial / campaign / video / ebrochure / tuition_promo / vu_english_promo / exchange_promo / apprenticeship_promo / vgsb_promo / postgrad_promo / hospitality_promo / opportunity_promo / immigration_promo / aged_care_promo / beauty_promo / cfp_promo / short_course_promo / it_promo) nl* {
