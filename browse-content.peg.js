@@ -40,11 +40,11 @@ tags= tags:(metatag / titletag)* {
 }
 
 metatag= ws* l:"<meta" m:[^>]+ r:">" not_nl* nl? {
-    return {tag: (l + m.join('') + r).trim() }
+    return (l + m.join('') + r).trim()
 }
 
 titletag= l:"<title>" m:[^<]+ r:"</title>" nl? {
-    return {tag: (l + m.join('') + r).trim() }
+    return (l + m.join('') + r).trim()
 }
 
 intro= nl* intro:indented_lines  {
