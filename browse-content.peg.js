@@ -32,7 +32,7 @@ nothing=
     }
 
 heading= audience:("Residents" / "International") not_nl+ nl {
-    return audience
+    return audience.trim()
 }
 
 tags= tags:(metatag / titletag)* {
@@ -40,11 +40,11 @@ tags= tags:(metatag / titletag)* {
 }
 
 metatag= ws* l:"<meta" m:[^>]+ r:">" not_nl* nl? {
-    return {tag: l + m.join('') + r }
+    return {tag: (l + m.join('') + r).trim() }
 }
 
 titletag= l:"<title>" m:[^<]+ r:"</title>" nl? {
-    return {tag: l + m.join('') + r }
+    return {tag: (l + m.join('') + r).trim() }
 }
 
 intro= nl* intro:indented_lines  {
@@ -77,21 +77,25 @@ course_type= nl* ws* type:course_type_name ' (' count:[0-9]+ ' course' [s]? ')' 
 
 course_type_name=
     'Short courses' /
-    'TAFE certificates and ' [Dd] 'iplomas' /
+    'TAFE certificates and ' [Dd] 'iplomas' { return 'TAFE certificates and diplomas'} /
     'Bachelor degrees (undergraduate)' /
     'Postgraduate'
 
-course= nl* title:course_title data:course_data* teaser:course_teaser* {
-    return {title: title, teaser: teaser, data: data}
+course= nl* title:course_title link:course_link data:course_data* teaser:course_teaser {
+    return {title: title, link: link, teaser: teaser, data: data}
 }
 
-course_title= ws* award:course_award title:not_nl+ nl+ {
-    return award + title.join('')
+course_title= ws* award:course_award title:[^<]+ {
+    return award + title.join('').trim()
+}
+
+course_link= '<link to: ' link:[^>]+ '>' not_nl* nl* {
+    return link.join('')
 }
 
 course_data= ws* key:[A-Za-z]+ ': ' value:not_nl+ nl+ {
     var ret = {}
-    ret[key.join('').toLowerCase()]=value.join('')
+    ret[key.join('').toLowerCase().trim()] = value.join('').trim()
     return ret
 }
 
@@ -303,23 +307,23 @@ sentence= c:[^\r\n\.]+ '.' {
 }
 
 indented_line= ws line:line {
-    return line
+    return line.trim()
 }
 
 indented_line_with_dot= ws line:line_with_dot {
-    return line
+    return line.trim()
 }
 
 indented_lines= lines:indented_line+ {
-    return lines.join('\r\n')
+    return lines.join('\r\n').trim()
 }
 
 indented_lines_with_dot= lines:indented_line_with_dot+ {
-    return lines.join('\r\n')
+    return lines.join('\r\n').trim()
 }
 
 indented_or_empty_lines= lines:(nl / indented_lines)+ {
-    return lines.join('\r\n')
+    return lines.join('\r\n').trim()
 }
 
 not_nl = [^\r\n]
