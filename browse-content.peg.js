@@ -202,140 +202,117 @@ promos= nl* promos:promo+ {
     return promos
 }
 
-promo= promo:(event / testimonial / campaign / video / ebrochure / tuition_promo / vu_english_promo / exchange_promo / apprenticeship_promo / vgsb_promo / postgrad_promo / hospitality_promo / opportunity_promo / immigration_promo / aged_care_promo / beauty_promo / cfp_promo / short_course_promo / it_promo / sport_promo / supply_chain_promo / film_tv_promo / marketing_promo / medical_promo / music_promo / nursing_promo / nutrition_promo / osteo_promo / paramedic_promo / legal_promo / pm_promo / psych_promo / pbl_promo / social_work_promo /surveyor_promo / work_experience_promo / youth_work_promo) nl* {
+promo= promo:(event / testimonial / campaign / video / ebrochure / promo_other) nl* {
     return promo
 }
 
+promo_other= ws* promo:promo_type rest:not_nl+ nl+ lines:indented_lines* {
+    return {
+        type: promo.type,
+        value: [promo.first + rest.join('')].concat(lines).join('\r\n')
+    }
+}
+
+promo_type=
+    match:'You have the opportunity ' {
+        return {type: 'exchange', first: match}
+    } /
+    match:'VU is focused on the delivery' {
+        return {type: 'apprenticeship', first: match}
+    } /
+    match:'Tuition fees ' {
+        return {type: 'tuition', first: match}
+    } /
+    match:'When I started at VU English' {
+        return {type: 'vu_english', first: match}
+    } /
+    match:'The Victoria Graduate School' {
+    return {type: 'vgsb', first: match}
+    } /
+    match:'Victoria University (VU) postgraduate programs' {
+        return {type: 'postgrad', first: match}
+    } /
+    match:'VU is a recognised leader' {
+        return {type: 'hospitality', first: match}
+    } /
+    match:'Find out about how' {
+        return {type: 'opportunity', first: match}
+    } /
+    match:'VU offers courses' {
+        return {type: 'immigration_law', first: match}
+    } /
+    match:'Demand for aged care' {
+        return {type: 'aged_care', first: match}
+    } /
+    match:'Our students provide treatments' {
+        return {type: 'beauty', first: match}
+    } /
+    match:'Some students are eligible' {
+        return {type: 'cfp', first: match}
+    } /
+    match:'We offer a wide' {
+        return {type: 'short_course', first: match}
+    } /
+    match:'Gain skills and knowledge' {
+        return {type: 'it', first: match}
+    } /
+    match:'Our $68 million' {
+        return {type: 'sport', first: match}
+    } /
+    match:'Victoria Universitys institute' {
+        return {type: 'supply_chain', first: match}
+    } /
+    match:'Strong industry connections' {
+        return {type: 'film_tv', first: match}
+    } /
+    match:'Gain an in' {
+        return {type: 'marketing', first: match}
+    } /
+    match:'Our courses can' {
+        return {type: 'medical', first: match}
+    } /
+    match:'VU has cutting' {
+        return {type: 'music', first: match}
+    } /
+    match:'Clinical learning' {
+        return {type: 'nursing', first: match}
+    } /
+    match:'Our courses have' {
+        return {type: 'nutrition', first: match}
+    } /
+    match:'Learn to assess' {
+        return {type: 'osteo', first: match}
+    } /
+    match:'Clinical placement' {
+        return {type: 'paramedic', first: match}
+    } /
+    match:'http://www.istockphoto.com/stock-photo-1931405' {
+        return {type: 'legal', first: match}
+    } /
+    match:'Develop the technical' {
+        return {type: 'pm', first: match}
+    } /
+    match:'The Victoria University Psychology' {
+        return {type: 'psych', first: match}
+    } /
+    match:'VU champions Problem' {
+        return {type: 'pbl', first: match}
+    } /
+    match:'As a Victoria' {
+        return {type: 'social_work', first: match}
+    } /
+    match:'Develop specialist skills' {
+        return {type: 'surveyor', first: match}
+    } /
+    match:'VU students get work experience' {
+        return {type: 'work_experience', first: match}
+    } /
+    match:'VU offers' {
+        return {type: 'youth_work', first: match}
+    }
+
 event= ws* 'Event' nl+ event_lines:indented_lines {
     return {type: 'event', value: event_lines}
-}
-
-exchange_promo= ws* first:'You have the opportunity ' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'exchange', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-apprenticeship_promo= ws* first:'VU is focused on the delivery' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'apprenticeship', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-tuition_promo= ws* first:'Tuition fees ' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'tuition', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-vu_english_promo= ws* first:'When I started at VU English' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'vu_english', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-vgsb_promo= ws* first:'The Victoria Graduate School' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'vgsb', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-postgrad_promo= ws* first:'Victoria University (VU) postgraduate programs' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'postgrad', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-hospitality_promo= ws* first:'VU is a recognised leader' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'hospitality', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-opportunity_promo= ws* first:'Find out about how' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'opportunity', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-immigration_promo= ws* first:'VU offers courses' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'immigration_law', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-aged_care_promo= ws* first:'Demand for aged care' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'immigration_law', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-beauty_promo= ws* first:'Our students provide treatments' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'immigration_law', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-cfp_promo= ws* first:'Some students are eligible' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'cfp', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-short_course_promo= ws* first:'We offer a wide' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'short_course', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-it_promo= ws* first:'Gain skills and knowledge' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'it', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-sport_promo= ws* first:'Our $68 million' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'sport', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-supply_chain_promo= ws* first:'Victoria Universitys institute' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'supply_chain', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-film_tv_promo= ws* first:'Strong industry connections' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'film_tv', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-marketing_promo= ws* first:'Gain an in' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'marketing', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-medical_promo= ws* first:'Our courses can' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'medical', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-music_promo= ws* first:'VU has cutting' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'music', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-nursing_promo= ws* first:'Clinical learning' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'nursing', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-nutrition_promo= ws* first:'Our courses have' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'nutrition', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-osteo_promo= ws* first:'Learn to assess' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'osteo', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-paramedic_promo= ws* first:'Clinical placement' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'paramedic', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-legal_promo= ws* first:'http://www.istockphoto.com/stock-photo-1931405' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'legal', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-pm_promo= ws* first:'Develop the technical' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'pm', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-psych_promo= ws* first:'The Victoria University Psychology' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'psych', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-pbl_promo= ws* first:'VU champions Problem' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'pbl', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-social_work_promo= ws* first:'As a Victoria' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'social_work', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-surveyor_promo= ws* first:'Develop specialist skills' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'surveyor', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-work_experience_promo= ws* first:'VU students get work experience' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'work_experience', value: [first + rest.join('')].concat(lines).join('\r\n')}
-}
-
-youth_work_promo= ws* first:'VU offers' rest:not_nl+ nl+ lines:indented_lines* {
-    return {type: 'youth_work', value: [first + rest.join('')].concat(lines).join('\r\n')}
 }
 
 ebrochure= first:'Create a course e-brochure' nl+ rest:indented_lines {
