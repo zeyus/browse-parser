@@ -10,5 +10,5 @@ fs.readFile(process.argv.pop(), function(err, data) {
     if(err) {
         throw err;
     }
-    process.stdout.write(JSON.stringify(parser.parse(data.toString())));
+    process.stdout.write(JSON.stringify(parser.parse(data.toString()), null, 4));
 });
