@@ -26,7 +26,8 @@ function _preprocess {
 
 function _parse {
     echo "Parsing $1"
-    node parse.js "$1" > "$BUILD/$(basename $1 .txt).json"
+    AREA_NAME=`basename "$1" .txt`
+    node parse.js "$1" > "$BUILD/$AREA_NAME.json"
 }
 
 # get files
